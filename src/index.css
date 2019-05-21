@@ -1,14 +1,69 @@
 body {
+	position: relative;
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+	"Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+	sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+	background:#e9e9e9;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+	monospace;
 }
+
+.App{
+	width:100vw;
+	height:100vh;
+}
+
+.round{
+	border-radius:50%;
+	width: 4vw;
+	height:4vw;
+	background: rgb(239, 239, 239);
+	box-shadow: 0.5px 0.5px 2px -1px grey;
+}
+
+.head{
+	position: absolute;
+}
+.head-plus{
+	display:none;
+	font-size:3rem;
+	line-height: 3rem;
+}
+.head-minus-cont{
+	position: relative;
+}
+.head-minus{
+	display:none;
+	position: absolute;
+	top:-50%;
+	right:-50%;
+}
+.head-check{
+	display:none;
+}
+.head-children{
+	display:none;
+}
+.head-check:checked ~ .head-children{
+	display:block;
+}
+.head-check:checked + label .head-minus{
+	display:block;
+}
+.head-check:checked + label .head-plus{
+	display:none !important;
+}
+.head:hover > label .head-plus{
+	display:block;
+}
+.head:hover > .head-data{
+	display:none;
+}
+
