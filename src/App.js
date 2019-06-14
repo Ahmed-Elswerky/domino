@@ -8,6 +8,12 @@ function cl(m){
 function dc(n){
 	return document.createElement(n)
 }
+function $I(m){
+    return document.getElementById(m)
+}
+function $C(m){
+    return document.getElementsByClassName(m)
+}
 
     // Your web app's Firebase configuration
 var firebaseConfig = {
@@ -110,6 +116,146 @@ var on = false,count = 0;
 // 	);
 // }
 
+
+
+class Children extends React.Component {
+    constructor(props){
+        super(props)
+        this.state={
+            children : [],
+            arr:[],
+            cache:[]
+        }
+    }
+
+    componentDidMount(){
+        
+        var cache=[],stylee,stylee1,
+        vw = Math.round(window.innerWidth/100)*4,
+        number = Math.round(2*3.14*vw / vw)-1,
+        turn = 1/number,cacheT = turn,
+        i=0
+        ref.child('heads/'+this.props.keys+'/children').on('child_added',d=>{
+            stylee = {"transform":"rotate("+turn+"turn) translate(0px,"+vw+"px)"}
+            stylee1 = {"transform":"rotate(-"+turn+"turn)"}
+            turn += cacheT
+            i++
+            cache.push(
+                <div style={stylee} className="child">
+                    <p style={stylee1}>{d.val().title}</p>
+                </div>
+            )
+            this.setState({arr:cache})
+            if(i>number-1){
+                i=0
+                vw = vw*1.2+50
+                cl(vw)
+                number = Math.round(2*3.14*vw / 50)-1
+                turn = 1/number
+                cacheT = turn
+            }
+        })
+    }
+
+    render(){
+        return (<div>{this.state.arr}</div>);
+	}
+}
+
+
+
+class Head extends React.Component{
+	constructor(props){
+		super(props)
+		this.state = {
+			headId:'',
+			children:[],
+			form:[],
+            input:[],
+            top:'',
+            left:''
+		}
+	}
+	componentDidMount(){
+        var h_i = 0
+		ref.child('heads').on('child_added',d=>{
+			var childr = []
+				var stylee = {
+					"top": d.val().top+'px', 
+					"left": d.val().left+'px'
+				}
+                childr.push(this.state.children)
+				childr.push(
+					<div className={"head round "+d.key} key={d.key} style={stylee} onMouseLeave={()=>on=false} onMouseOver={()=>on=true}>
+                        <div className="contain">
+                            <span className="head-data">{d.val().title}</span>
+                            <input className="head-check" onChange={()=>console.log(this.checked +' 1')} type="checkbox" id={"head-check"+h_i}/>
+                            <label className="head-minus-cont head-plus" htmlFor={"head-check"+h_i}>+</label>
+                            <div className="head-children">
+                                <label className="head-minus" htmlFor={"head-check"+h_i}>-</label>
+                                <div className="add-child" data-key={d.key} onClick={this.add_child}>+</div>
+                                <Children keys={d.key}/>
+                            </div>
+                        </div>
+					</div>
+                )
+                
+            this.setState({children:childr})
+            h_i++
+        })
+        ref.child('heads').on('child_removed',m=>{
+            if($C(m.key)[0] != undefined)
+                $C(m.key)[0].remove()
+        })
+	}
+    
+    add_child = (e) =>{
+        this.setState({
+			form:(
+                <form onSubmit={this.add_child2} data-key={e.target.getAttribute("data-key")} onMouseLeave={()=>on=false} onMouseOver={()=>on=true}>
+                    <label>
+                        Info: <input type="text" id="fire-inp" autoFocus/>
+                    </label>
+                    <input type="submit" value="Send"/>
+                    <input type="reset" value="Cancel" onClick={()=>this.cancel_head()}/>
+                </form>
+            )
+        })
+        on=true
+    }
+
+    add_child2 = e =>{
+        e.preventDefault()
+        cl(e.target.getAttribute("data-key"))
+        var p = ref.child('heads/'+e.target.getAttribute('data-key')+'/children').push()
+		p.set({
+            title:e.target.children[0].children[0].value
+        }).then(()=>{
+            this.setState({
+                form:[]
+            })
+            on = false
+        })
+    }
+
+    cancel_head = ()=>{
+        this.setState({
+            form:[]
+        })
+    }
+
+	render(){
+		return (
+			<React.Fragment>
+				{this.state.children}
+				{this.state.form}
+			</React.Fragment>
+		);
+	}
+
+}
+
+
 class App extends React.Component{
 	constructor(props){
 		super(props)
@@ -117,72 +263,67 @@ class App extends React.Component{
 			headId:'',
 			children:[],
 			form:[],
-			input:[]
+            input:[],
+            top:'',
+            left:''
 		}
 	}
 	componentDidMount(){
-		ref.child('heads').on('child_added',m=>{
-			var childr = []
-			m.forEach(d=>{
-				var stylee = {
-					top: d.val().top+'px', 
-					left: d.val().left+'px'
-				}
-				cl(stylee)
-				cl(d.val().top)
-				childr.push(
-					<div className="head round" style={stylee} onMouseLeave={()=>on=false} onMouseOver={()=>on=true}>
-						<span className="head-data">{d.val().title}</span>
-						<input className="head-check" onChange={()=>console.log(this.checked +' 1')} type="checkbox" id="head-check1" />
-						<label className="head-minus-cont" htmlFor="head-check1">
-							<span className="head-minus">-</span>
-							<span className="head-plus">+</span>
-						</label>
-						<div className="head-children">
-						</div>
-					</div>
-				)
-			})
-			this.setState({children:childr})
-		})
+		
+        ref.child('heads').on('child_removed',m=>{
+            if($C(m.key)[0] != undefined)
+                $C(m.key)[0].remove()
+        })
 	}
 
 	add_head1 = (e)=>{
-        cl('chlicked')
-		var p = ref.child('heads').push()
-		p.set({
-			top:e.clientY,
-			left:e.clientX
-		})
-		this.state.headId = p.key
+        this.state.top = e.clientY
+        this.state.left = e.clientX
+        on = true
 		this.setState({
 			form:(
-			<form onSubmit={this.add_head2} onMouseLeave={on=false} onMouseOver={on=true}>
-				<label>
-					Title: <input type="text"/>
-				</label>
-				<input type="submit" value="Send"/>
-			</form>)
-			})
+                <form onSubmit={this.add_head2} onMouseLeave={()=>on=false} onMouseOver={()=>on=true}>
+                    <label>
+                        Title: <input type="text" id="fire-inp" autoFocus/>
+                    </label>
+                    <input type="submit" value="Send"/>
+                    <input type="reset" value="Cancel" onClick={()=>this.cancel_head()}/>
+                </form>
+            )
+        })
 	}
 	add_head2 = e =>{
-		e.preventDefault()
-		ref.child('heads/'+this.state.headId).update({
-			title:e.target.children[0].children[0].value
-		}).then(()=>{
-			this.setState({form:[]})
+        e.preventDefault()
+        var p = ref.child('heads').push()
+		p.set({
+			top:this.state.top,
+			left:this.state.left,
+            title:e.target.children[0].children[0].value
+        }).then(()=>{
+            this.setState({
+                form:[]
+            })
+            on = false
 		})
-	}
+    }
+
+    cancel_head = ()=>{
+        this.setState({
+            form:[]
+        })
+    }
 
 	render(){
 		return (
 			<div className="App" onClick={(event)=>{if(!on) this.add_head1(event)}}>
-				{this.state.children}
+				<Head/>
 				{this.state.form}
 			</div>
 		);
 	}
 
 }
+
+
 
 export default App;
