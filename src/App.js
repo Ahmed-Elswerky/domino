@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import * as firebase from 'firebase';
 import { continueStatement } from '@babel/types';
+
 function cl(m){
 	console.log(m)
 } 
@@ -30,6 +31,27 @@ var ref = firebase.database().ref()
 var on = false,count = 0;
 
 
+Date.prototype.customFormat = function(formatString){
+    var YYYY,YY,MMMM,MMM,MM,M,DDDD,DDD,DD,D,hhhh,hhh,hh,h,mm,m,ss,s,ampm,AMPM,dMod,th;
+    YY = ((YYYY=this.getFullYear())+"").slice(-2);
+    MM = (M=this.getMonth()+1)<10?('0'+M):M;
+    MMM = (MMMM=["January","February","March","April","May","June","July","August","September","October","November","December"][M-1]).substring(0,3);
+    DD = (D=this.getDate())<10?('0'+D):D;
+    DDD = (DDDD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][this.getDay()]).substring(0,3);
+    th=(D>=10&&D<=20)?'th':((dMod=D%10)==1)?'st':(dMod==2)?'nd':(dMod==3)?'rd':'th';
+    formatString = formatString.replace("#YYYY#",YYYY).replace("#YY#",YY).replace("#MMMM#",MMMM).replace("#MMM#",MMM).replace("#MM#",MM).replace("#M#",M).replace("#DDDD#",DDDD).replace("#DDD#",DDD).replace("#DD#",DD).replace("#D#",D).replace("#th#",th);
+    h=(hhh=this.getHours());
+    if (h==0) h=24;
+    if (h>12) h-=12;
+    hh = h<10?('0'+h):h;
+    hhhh = hhh<10?('0'+hhh):hhh;
+    AMPM=(ampm=hhh<12?'am':'pm').toUpperCase();
+    mm=(m=this.getMinutes())<10?('0'+m):m;
+    ss=(s=this.getSeconds())<10?('0'+s):s;
+    return formatString.replace("#hhhh#",hhhh).replace("#hhh#",hhh).replace("#hh#",hh).replace("#h#",h).replace("#mm#",mm).replace("#m#",m).replace("#ss#",ss).replace("#s#",s).replace("#ampm#",ampm).replace("#AMPM#",AMPM);
+  }//#DD#/#MM#/#YYYY# #hh#:#mm#:#ss#
+
+
 class Children extends React.Component {
     constructor(props){
         super(props)
@@ -49,7 +71,23 @@ class Children extends React.Component {
         i=0
         
         ref.child('heads/'+this.props.keys+'/children').on('child_added',d=>{
-            stylee = {"transform":"rotate("+turn+"turn) translate(0px,"+vw+"px)"}
+
+            if(window.innerWidth > 750){
+                stylee = {"transform":"rotate("+turn+"turn) translate(0px,"+vw+"px)"}
+                cl('1000')
+            }if(window.innerWidth < 750){
+                stylee = {"transform":"rotate("+turn+"turn) translate(0px,"+vw*1.6+"px)"}
+                cl('700')
+            }if(window.innerWidth < 650){
+                stylee = {"transform":"rotate("+turn+"turn) translate(0px,"+vw*2.2+"px)"}
+                cl('700')
+            }if(window.innerWidth < 400){
+                stylee = {"transform":"rotate("+turn+"turn) translate(0px,"+vw*3+"px)"}
+                cl('400')
+            }if(window.innerWidth < 200){
+                stylee = {"transform":"rotate("+turn+"turn) translate(0px,"+vw*6+"px)"}
+                cl('200')
+            }
             stylee1 = {"transform":"rotate(-"+turn+"turn)"}
             turn += cacheT
             i++ 
@@ -58,6 +96,7 @@ class Children extends React.Component {
                     <input type="checkbox" className="p-tog" id={d.key} style={{'display':'none'}}/>
                     <label htmlFor={d.key} className="child" style={stylee}>
                         <p style={stylee1}>{d.val().title}</p>
+                        <small>{d.val().time}</small>
                     </label>
                 </React.Fragment>
             )
@@ -107,7 +146,10 @@ class Head extends React.Component{
                     e.forEach(b=>{
                         num++
                     })
-                    width = ((num/14)>1?num/14:1)*(Math.round(window.innerWidth/100)*4)*2 + (Math.round((num/14)+1))*50*2
+                    if(window.innerWidth < 750)
+                        width = ((num/14)>1?num/14:1)*(Math.round(window.innerWidth/100)*4)*2 + (Math.round((num/14)+1))*50*3
+                    else
+                        width = ((num/14)>1?num/14:1)*(Math.round(window.innerWidth/100)*4)*2 + (Math.round((num/14)+1))*50*2
                     var childrenContainStyle = {
                         "width": width + 'px',
                         "height": width + 'px',
@@ -119,7 +161,7 @@ class Head extends React.Component{
                         <label htmlFor="asd" className={"head round "+d.key} key={d.key} style={stylee} onMouseLeave={()=>on=false} onMouseOver={()=>on=true}>
                             <div className="contain">
                                 <span className="head-data">{d.val().title}</span>
-                                <input className="head-check" onChange={()=>console.log(this.checked +' 1')} type="checkbox" id={"head-check"+h_i}/>
+                                <input className="head-check" type="checkbox" id={"head-check"+h_i}/>
                                 <label className="head-minus-cont head-plus" htmlFor={"head-check"+h_i}>o</label>
                                 <div className="head-children" style={childrenContainStyle}>
                                     <label className="head-minus" htmlFor={"head-check"+h_i}>-</label>
@@ -146,7 +188,7 @@ class Head extends React.Component{
 			form:(
                 <label className="pop flex-col" style={{'display':'flex'}} onMouseLeave={()=>on=false} onMouseOver={()=>on=true}>
                     <form className="pop-body round flex-col" onSubmit={this.add_child2} data-key={e.target.getAttribute("data-key")}>
-                            Info: <input type="text" autoFocus required/>
+                            Info: <input type="text" id="child-info" autoFocus required/>
                         <br/>
                         <input className="primary btn" type="submit" value="Send"/>
                         <input className="btn" type="reset" value="Cancel" onClick={()=>this.cancel_head()}/>
@@ -159,10 +201,13 @@ class Head extends React.Component{
 
     add_child2 = e =>{
         e.preventDefault()
-        if(e.target.children[0].children[0].children[0].value.length>0){
+        if($I('child-info').value.length>0){
+            var dat = new Date();
+            dat = dat.customFormat("#DD#/#MM#/#YYYY# #hh#:#mm#")
             var p = ref.child('heads/'+e.target.getAttribute('data-key')+'/children').push()
             p.set({
-                title:e.target.children[0].children[0].children[0].value
+                title:$I('child-info').value,
+                time:Date.now()
             }).then(()=>{
                 this.setState({
                     form:[]
@@ -225,7 +270,8 @@ class App extends React.Component{
                                     <br/>
                                     <label htmlFor="" id="color-pick">
                                         Color:
-                                        <input type="radio" className="color-radio" name="colo" data-val="white" id="white" defaultChecked required/> <label htmlFor="white" className="color round" style={{"background":"white"}}></label>                                    <input type="radio" className="color-radio" name="colo" data-val="#e44b4b" id="red"/> <label htmlFor="red"  className="color round" style={{"background":"#e44b4b"}}></label>
+                                        <input type="radio" className="color-radio" name="colo" data-val="white" id="white" defaultChecked required/> <label htmlFor="white" className="color round" style={{"background":"white"}}></label>
+                                        <input type="radio" className="color-radio" name="colo" data-val="#e44b4b" id="red"/> <label htmlFor="red"  className="color round" style={{"background":"#e44b4b"}}></label>
                                         <input type="radio" className="color-radio" name="colo" data-val="#6464de" id="blue"/> <label htmlFor="blue"  className="color round" style={{"background":"#6464de"}}></label>
                                         <input type="radio" className="color-radio" name="colo" data-val="#f5f55f" id="yellow"/> <label htmlFor="yellow"  className="color round" style={{"background":"#f5f55f"}}></label>
                                     </label>
@@ -328,7 +374,7 @@ class Sign extends React.Component{
                 <div id="sign-div" className=" flex-col pop-body">
                     <label htmlFor="signup" id="sign-up">Sign up</label>
                     <input className="sign-btn" type="radio" id="signup" name="sign" style={{"display":"none"}} autoFocus/>
-                    <form action="#" onSubmit={this.signup} style={{"display":"none"}}>
+                    <form action="#" className="flex-col" onSubmit={this.signup} style={{"display":"none"}}>
                         <div>
                         <div>
                             <div id="sign-err"></div>
@@ -350,7 +396,7 @@ class Sign extends React.Component{
                     </form>
                     <label htmlFor="login" id="log-in">Log in</label>
                     <input className="sign-btn" type="radio" id="login" name="sign" style={{"display":"none"}}/>
-                    <form action="#" onSubmit={this.login} style={{"display":"none"}}>
+                    <form action="#" className="flex-col" onSubmit={this.login} style={{"display":"none"}}>
                         <div>
                             <div>
                                 <div id="log-err"></div>
