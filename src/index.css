@@ -21,9 +21,16 @@ body {
     transition: 0.3s;
 }
 #intro{
-    background:url(intro.png) center no-repeat;
+    display: grid;
+    justify-content: center;
+    /* background:url(intro.png) center no-repeat; */
     background-size:cover;
+    width: 100%;
     height:100%;
+}
+#intro img{
+    width: 100%;
+    margin:auto;
 }
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
@@ -248,7 +255,6 @@ code {
     height: 100%;
     margin:auto;
     font-size: 2rem;
-    background: #38383881;
     z-index: 50;
     overflow: hidden;
     position: fixed;
@@ -326,25 +332,34 @@ code {
     left: 0;
 }
 #sign-cont form > div{
-    background:url('signup.png')  no-repeat center;
+    /* background:url('signup.png')  no-repeat center; */
     background-size:contain; 
     width: 55%;
     height:100%;
     position: relative;
     margin: auto;
+    display: grid;
+    justify-content: center;
 }
+
+.reg-img{
+    width:100%;
+    margin: auto;       
+}
+
 #login ~ form > div{
-    background:url('login.png')  no-repeat center;
+    /* background:url('login.png')  no-repeat center; */
     background-size:contain; 
 }
 form > div > div{
     position: absolute;
     width: 28%;
-    top: 29%;
+    top: auto;
+    bottom: calc(50% - 7.5rem);
     left: 27.5%;
     transform: skewY(-30deg);
-    max-height: 60%;
-    margin: 8vh 0%;
+    height:13rem;
+    /* margin: 8vh 0%; */
 }
 
 form > div > div input{
@@ -423,11 +438,11 @@ form > div > div input:focus + label,form > div > div input:valid + label{
         left: 0%;
     }
     form > div > div {
-        top: auto;
-        bottom: calc(17% - 7vh);
+        /* top: auto;
+        bottom: calc(9% - 7vh);
         left: calc(20% + 6.5vw);
         transform: skewY(-30deg);
-        width: 30%;
+        width: 30%; */
     }
     form>div>div input {
         width: 80%;

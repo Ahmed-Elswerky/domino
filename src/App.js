@@ -2,6 +2,9 @@ import React from 'react';
 import './App.css';
 import * as firebase from 'firebase';
 import { continueStatement } from '@babel/types';
+import signup from './signup.png';
+import login from './login.png';
+import intro from './intro.png';
 
 function cl(m){
 	console.log(m)
@@ -369,35 +372,37 @@ class Sign extends React.Component{
     render(){
         return (
             <React.Fragment>
-            <div id="intro"></div>
+            <div id="intro"><img src={intro} alt=""/></div>
             <div id="sign-cont" className="flex-col pop">
                 <div id="sign-div" className=" flex-col pop-body">
                     <label htmlFor="signup" id="sign-up">Sign up</label>
                     <input className="sign-btn" type="radio" id="signup" name="sign" style={{"display":"none"}} autoFocus/>
                     <form action="#" className="flex-col" onSubmit={this.signup} style={{"display":"none"}}>
                         <div>
-                        <div>
-                            <div id="sign-err"></div>
+                            <img className="reg-img" src={signup} alt=""/>
                             <div>
-                                <input type="text" id="sign-name" required autoFocus/>
-                                <label htmlFor="sign-name">User name</label>
+                                <div id="sign-err"></div>
+                                <div>
+                                    <input type="text" id="sign-name" required autoFocus/>
+                                    <label htmlFor="sign-name">User name</label>
+                                </div>
+                                <div>
+                                    <input type="email" id="sign-email" required/>
+                                    <label htmlFor="sign-email">Email</label>
+                                </div>
+                                <div>
+                                    <input type="password" id="sign-pass"  required/>
+                                    <label htmlFor="sign-pass">Password</label>
+                                </div>
+                                <input type="submit" className="btn" value="Sign up"/>
                             </div>
-                            <div>
-                                <input type="email" id="sign-email" required/>
-                                <label htmlFor="sign-email">Email</label>
-                            </div>
-                            <div>
-                                <input type="password" id="sign-pass"  required/>
-                                <label htmlFor="sign-pass">Password</label>
-                            </div>
-                            <input type="submit" className="btn" value="Sign up"/>
-                        </div>
                         </div>
                     </form>
                     <label htmlFor="login" id="log-in">Log in</label>
                     <input className="sign-btn" type="radio" id="login" name="sign" style={{"display":"none"}}/>
                     <form action="#" className="flex-col" onSubmit={this.login} style={{"display":"none"}}>
                         <div>
+                            <img className="reg-img" src={login} alt=""/>
                             <div>
                                 <div id="log-err"></div>
                                 <div>
